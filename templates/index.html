@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Graph Curvature</title>
+
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    
+    <meta name="viewport" content="user-scalable=no, minimal-ui, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, target-densitydpi=device-dpi" />
+    <meta charset="utf-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta property="og:title" content="Graph Curvature Calculator"/>
+    <meta property="og:site_name" content="Graph Curvature Calculator"/>
+    <meta property="og:description" content="Graph curvature calculator - Written by George Stagg and David Cushing "/>
+    <link rel="apple-touch-icon" href="icon.png">
+    <script src="{{ url_for('static', filename='jquery-2.2.0.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='spin.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lz.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='sweetalert.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='cytoscape.min.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='curvature.js') }}" defer></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='sweetalert.css') }}">
+    <style>
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #CC0000;
+      }
+      li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 10px 16px;
+          text-decoration: none;
+      }
+
+      li {
+        float: left;
+        }
+
+      body {
+        font-family: monospace;
+        font-size: 14px;
+      }
+      h1 {
+        opacity: 1;
+        font-size: 1em;
+      }
+      h2{
+        position: static;
+        text-align: center;
+        padding: 20px;
+        /*left: 30%;*/
+      }
+      a {
+        color: #00e;
+        text-decoration: none;
+      }
+      a:visited {
+        color: #00e;
+      }
+      a:hover {
+        color: #06e;
+      }
+      #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        /* position: absolute; */
+        left: 0%;
+        top: 0%;
+        z-index: 99;
+        /* background-color: rgb(245, 245, 245); */
+        /* border: solid black; */
+      }
+      #addcircle  {
+        position:absolute;
+        text-align:left;
+        left:0px;
+        top:0px;
+        width:15px;
+        height:15px;
+        margin: 0px 5px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        background-color: #CCC;
+        border-radius: 10px;
+        display:none;
+      }
+      #infocontainer {
+        position:absolute;
+        text-align:left;
+        left: 1%;
+        top: 2%;
+        padding: 5px 5px;
+        font-family: monospace;
+        font-weight: 300;
+        color: #111111;
+        background-color:rgba(255, 255, 255, 0.5);
+        z-index: 1000;
+      }
+      #controlsinfo  {
+        display: none;
+      }
+      #adm  {
+        position:absolute;
+        text-align:left;
+        right:0px;
+        top:2%;
+        padding: 5px 5px;
+        font-weight: 300;
+        color: #111111;
+        background-color:rgba(255, 255, 255, 0.5);
+        z-index: 1000;
+        width: 210px;
+      }
+    </style>
+  </head>
+  <body>
+    <!--  
+    <ul>
+      <li><a>DEVELOPMENT VERSION - do not share</a></li>
+    </ul>
+    !-->
+
+    <div id="cy"></div>
+    <div id="addcircle"></div>
+    <!--<div id="undosavecontainer">
+      <a style="font-weight: 600; font-size: 12px;" id="undobtn" href="javascript:void(0);">[Undo]</a>
+      <a style="display: none; font-weight: 600; font-size: 12px;" id="savebtn" href="javascript:void(0);">[Save]</a>
+      <a style="font-weight: 600; font-size: 12px;" id="loadbtn" href="javascript:void(0);">[Load]</a>
+    </div>-->
+    <!--<div id="autolayout">
+      <a style="font-weight: 600; font-size: 12px;" id="labelsbtn" href="javascript:void(0);">[Toggle Labels]</a><br>
+      <span style="font-weight: 600;font-size: 12px;"> Autolayout:</span> <select id="autolayoutselect">
+        <option value="random">Random</option>
+        <option value="grid">Grid</option>
+        <option value="circle" selected>Circle</option>
+        <option value="concentric">Concentric</option>
+        <option value="breadthfirst">Breadth First</option>
+        <option value="cose">Compound Spring</option>
+      </select>
+    </div>-->
+    <h2>
+      Visualizing Ricci-Foster curvature
+    </h2>
+    <div id="infocontainer">
+      <div style="font-weight: 600;">
+        Visualizing Ricci-Foster Curvature
+      </div>
+      <div id="info">
+
+         <!--<div style="font-size: 12px;">
+          If you have found this software useful, please cite the following article:<br>
+	  <i>The Graph Curvature Calculator and the curvatures of cubic graphs,</i> Experimental Mathematics, 2019<br>
+		<i>(arXiv:1712.03033 [math.CO])</i>
+        </div>-->
+        <hr>
+        <form style="margin:0;"  onsubmit="return false">
+          <fieldset id="radioCurveType">
+            <legend>Select</legend>
+            <div>
+              <input type="radio" id="rad1" name="curvType" value="1" checked/>
+              <label for="rad1">Edge curvature</label>
+            </div>
+            <div>
+              <input type="radio" id="rad2" name="curvType" value="2"/>
+              <label for="rad2">Vertex curvature</label>
+            </div>
+            <div>
+              <input type="radio" id="rad3" name="curvType" value="3"/>
+              <label for="rad3">Foster coefficient</label>
+            </div>
+            <div>
+              <input type="radio" id="rad0" name="curvType" value="0"/>
+              <label for="rad0">Vertex label</label>
+            </div>
+          </fieldset>
+        </form>
+        <hr>
+        <a style="font-weight: 600; font-size: 12px;" id="showhideinfo" href="javascript:void(0)">[Show Help]</a>
+          <div id="controlsinfo">
+            <div style="font-weight: 600;font-size: 12px;">
+              Controls
+            </div>
+            <div style="font-weight: 300;font-size: 12px;">
+              Add new vertex - Click vertex, then click empty space<br> 
+              Connect vertices - Click vertex, then click another<br> 
+              Remove vertex - Right-click (tap-and-hold) vertex<br> 
+              Remove edge - Right-click (tap-and-hold) edge<br> 
+              Zoom in/out - Scroll wheel (pinch-and-zoom)<br> 
+              Pan - Click empty space and drag<br> 
+              Move vertex - Click vertex and drag<br>
+              <br>
+            </div>
+            <div style="font-weight: 600;font-size: 12px;">
+              Software contributors
+            </div>
+            <div style="font-weight: 300;font-size: 12px;">
+              David Cushing et al.<br>
+              Harry Richman<br>
+              Includes the graph visualisation software <a href="https://github.com/cytoscape/cytoscape.js">cytoscape.js</a> (MIT Licenced).
+            </div>
+        </div>
+      </div>
+  </div>
+
+  <div style="font-weight: 600;" id="adm">
+    <div>
+      Adjacency Matrix <a id="admhideshow" href="javascript:void(0)">[Show]</a>
+    </div>
+    <div id="admjsoncontainer">
+      <div style="font-weight: 300;" id="admjson">
+        <pre>[]</pre>
+      </div>
+    </div>
+    <script type="text/javascript">
+      var opts = {top: '35%',text: 'Thinking...'};
+      var spinner = new Spinner(opts).spin();
+      document.getElementById('cy').appendChild(spinner.el);
+    </script>
+  </div>
+  </body>
+
+</html>
