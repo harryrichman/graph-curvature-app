@@ -1,83 +1,57 @@
 import numpy as np  # type: ignore[import]
-import copy
-# from numpy.linalg import eigvalsh  # type: ignore[import]
 from numpy import linalg
-from enum import Enum
 
 
 """
-Steinerberger Curvature
+Ricci-Foster Curvature
 
-Erin Law 2022
+Harry Richman 2024
 """
 
-def distanceMatrix(A):
-    A = np.array(A)
+def laplacian_matrix(A):
+    Q = np.array(A)
     n = len(A)
-    D = copy.deepcopy(A)
-    An= copy.deepcopy(A)
-    for x in range(n):
-        An = A @ An
-        for i in range(n):
-            for j in range(i + 1):
-                if An[i,j] > 0 and D[i,j] == 0 and i != j:
-                    D[i,j] = D[j,i] = x + 2
-    return D
-
-
-
-"""
-Node and Link resitance curvature by Erin Law
-"""
-def laplacianMatrix(A):
-    A = np.array(A)
-    n = len(A)
-    Q = copy.deepcopy(A)
-    An= copy.deepcopy(A)
-    for _ in range(n):
-        for i in range(n):
-            for j in range(i + 1):
-                if An[i,j]>0 and i!=j and Q[i,j]!=0:
-                    Q[i,j]=Q[j,i]=-An[i,j]
-                if i==j:
-                   Q[i,j] = Q[j,i] = sum(An[i,])
+    for i in range(n):
+        # set diagonal entry
+        Q[i, i] = sum(A[i])
+        for j in range(i):
+            # set off-diagonal entries
+            Q[i, j] = Q[j, i] = - A[i][j]
     return Q
- 
-def unitVec(i, n):
+
+def unit_vec(i, n):
     e = np.zeros(n)
     e[i] = 1
     return e
- 
- 
-def effectiveResistance(A):
-    A = np.array(A)
+
+def resistance_matrix(A):
     n = len(A)
-    Q = laplacianMatrix(A)
-    Qi = linalg.pinv(Q)
-    W = [[0 for _ in range(n)] for _ in range(n)]
+    Q = laplacian_matrix(A)
+    Qinv = linalg.pinv(Q)
+    W = np.zeros((n, n))
     for i in range(n):
         for j in range(n):
-            unit = unitVec(i, n) - unitVec(j, n)
+            unit = unit_vec(i, n) - unit_vec(j, n)
             unitn = np.transpose(unit)
-            W[i][j] = unitn@Qi@unit
+            W[i][j] = unitn @ Qinv @ unit
     return W
 
-def nodeResistanceCurvature(A):
+def node_resistance_curvature(A):
     n = len(A)
     curvature = [0 for _ in range(n)]
-    w = effectiveResistance(A)
+    w = resistance_matrix(A)
     for i in range(n):
-        s=0
+        s = 0
         for j in range(n):
             if A[i][j] > 0:
-                s += w[i][j]*A[i][j]
-        curvature[i]=1-(0.5*s)
+                s += w[i][j] * A[i][j]
+        curvature[i] = 1 - (0.5*s)
     return curvature
  
 def foster_coefficients(A):
     n = len(A)
     coeffs = [[0 for _ in range(n)] for _ in range(n)]
-    w = effectiveResistance(A)
+    w = resistance_matrix(A)
     for i in range(n):
         for j in range(n):
             if A[i][j] > 0:
@@ -85,10 +59,10 @@ def foster_coefficients(A):
     return coeffs
 
     
-def linkResistanceCurvature(A):
+def link_resistance_curvature(A):
     n = len(A)
     curvature = [[0 for _ in range(n)] for _ in range(n)]
-    w = effectiveResistance(A)
+    w = resistance_matrix(A)
     for i in range(n):
         di = sum(A[i])
         for j in range(n):

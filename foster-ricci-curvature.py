@@ -2,9 +2,9 @@ from flask import Flask, render_template, request
 import json
 
 from curvature import (
-    nodeResistanceCurvature,
-    linkResistanceCurvature,
-    foster_coefficients
+    node_resistance_curvature,
+    link_resistance_curvature,
+    foster_coefficients,
 )
 
 app = Flask(__name__)
@@ -31,7 +31,7 @@ def get_labels():
     if t == 1:
         # link resistance curvature
         try:
-            LRC = linkResistanceCurvature(AM)
+            LRC = link_resistance_curvature(AM)
             ret = dict()
             ret["AM"] = AM
             ret["LRC"] = [[0 for _ in range(len(V))] for _ in range(len(V))]
@@ -46,7 +46,7 @@ def get_labels():
         # node resistance curvature
         try:
             print("AM =", AM)
-            C = nodeResistanceCurvature(AM)
+            C = node_resistance_curvature(AM)
             ret = [round(C[i], 3) for i in range(len(V))]
         except Exception as e:
             print(e)
