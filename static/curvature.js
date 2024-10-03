@@ -166,8 +166,7 @@ $(document).ready(function() {
           }
         }
       }
-    }
-    if (curveType == 3) { // foster coefficient
+    } else if (curveType == 3) { // foster coefficient
       for (i = 0; i < numV; i++) {
         for (j = 0; j < numV; j++) {
           if (i == j) continue;
@@ -200,7 +199,7 @@ $(document).ready(function() {
         if (curveType == 0) { // vertex labels
           nodes[i].data('curve', 'v' + vs);
           nodes[i].data('pol', '#000000');
-        } else { // vertex resistance curvature
+        } else if (curveType == 2) { // vertex resistance curvature
           nodes[i].data('curve', json[vs]);
           if (json[vs] < 0) {
             nodes[i].data('pol', '#e01818');
@@ -209,6 +208,8 @@ $(document).ready(function() {
           } else {
             nodes[i].data('pol', '#000000');
           }
+        } else {
+          console.log("error: invalid curveType")
         }
       }
     }
