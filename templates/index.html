@@ -224,6 +224,16 @@
         <pre>[]</pre>
       </div>
     </div>
+    <div id="admloadcontainer" style="margin-top: 8px;">
+      <div>
+        Import Matrix
+      </div>
+      <textarea id="admloadinput" rows="3" style="width: 100%; box-sizing: border-box; font-family: monospace; font-size: 11px;" placeholder="[[0,1],[1,0]]"></textarea>
+      <div style="margin-top: 4px;">
+        <a style="font-weight: 600; font-size: 12px;" id="admloadbtn" href="javascript:void(0)">[Load]</a>
+        <span id="admloaderror" style="color: #c00; font-size: 11px;"></span>
+      </div>
+    </div>
     <script type="text/javascript">
       var opts = {top: '35%',text: 'Thinking...'};
       var spinner = new Spinner(opts).spin();

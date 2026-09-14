@@ -468,9 +468,14 @@ $(document).ready(function() {
     } catch (e) {
       return -2;
     }
-    //test for symmetry and zero diagonal
+    if (!Array.isArray(newAM)) return -2;
     numV = newAM.length;
+    if (numV == 0) return -1;
+    for (i = 0; i < numV; i++) {
+      if (!Array.isArray(newAM[i]) || newAM[i].length != numV) return -2;
+    }
 
+    //test for symmetry and zero diagonal
     zerodiag = 1;
     for (i = 0; i < numV; i++) {
       if (newAM[i][i] != 0) zerodiag = 0;
@@ -653,34 +658,30 @@ $(document).ready(function() {
       html: true
     });
   });
-  $("#loadbtn").click(function(event) {
-    swal({
-        title: "Load Graph",
-        text: "Input adjacency matrix:",
-        type: "input",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        inputPlaceholder: "Adjacency Matrix"
-      },
-      function(inputValue) {
-        if (inputValue === false) return false;
-        if (inputValue === "") {
-          swal.showInputError("Graph load error");
-          return false
-        }
-        status = loadAM(inputValue);
-        if (status < 0) {
-          swal.showInputError("Graph load error");
-          return false;
-        } else {
-          setTimeout(function() {
-            autoLayout();
-            getlabels();
-            swal.close();
-          }, 0);
-        }
-        return true;
-      });
+  $("#admloadbtn").click(function(event) {
+    var inputValue = $("#admloadinput").val().trim();
+    $("#admloaderror").text("");
+    if (inputValue === "") {
+      $("#admloaderror").text("Please enter an adjacency matrix.");
+      return;
+    }
+    loadStatus = loadAM(inputValue);
+    if (loadStatus < 0) {
+      var msg = "Invalid adjacency matrix.";
+      if (loadStatus == -2) {
+        msg = "Could not parse input; expected a square matrix like [[0,1],[1,0]].";
+      } else if (loadStatus == -3) {
+        msg = "Matrix must be symmetric with a zero diagonal.";
+      } else if (loadStatus == -1) {
+        msg = "Matrix must have at least one vertex.";
+      }
+      $("#admloaderror").text(msg);
+      return;
+    }
+    autoLayout();
+    getlabels();
+    pushStateToStack();
+    $("#admloadinput").val("");
   });
 
 
